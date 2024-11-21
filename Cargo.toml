@@ -1,0 +1,19 @@
+workspace = { members = ["crates/bindings-uniswapv2"] }
+[package]
+name = "uniswapv2-mm"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bindings-uniswapv2 = { path = "./crates/bindings-uniswapv2" }
+
+ethers = { version = "2", features = ["ws", "rustls"]}
+dotenv = "0.15.0"
+anyhow = "1.0.70"
+text_io = "0.1.12"
+tokio = { version = "1.18", features = ["full"] }
+config-file = { version = "0.2.3", features = ["json"] }
+serde = "1.0.168"
+chrono = "0.4.38"

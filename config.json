@@ -1,0 +1,23 @@
+{
+    "pool":{
+        "router_address": "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3",
+        "weth_address": "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+        "token_a_address": "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357",
+        "token_a_symbol": "DAI",
+        "token_a_decimal": 18,
+        "token_b_address": "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
+        "token_b_symbol": "USDC",
+        "token_b_decimal": 6
+    },
+    "trade": {
+        "tswap_buy": 20,
+        "tswap_sell": 10,
+        "tswap_step": 60,
+        "slippage": 9500
+    },
+    "network": {
+        "rpc": "https://eth-sepolia.g.alchemy.com/v2/zRBaSGeb5GlSgHVaHumpU_yfGgsQG-Gg",
+        "chain_id": 11155111,
+        "gas_price_multipler": 15000
+    }
+}
