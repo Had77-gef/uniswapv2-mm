@@ -6,7 +6,7 @@ use ethers::{abi::Address, providers::Middleware, types::U256};
 use crate::{config::Config, BASIS_POINT};
 
 const DEFAULT_DEPOSIT_CALL_GAS: u64 = 50000u64;
-const DEFAULT_GAS_PRICE: u64 = 600000u64;
+const DEFAULT_GAS_PRICE: u64 = 50000000000u64;
 
 pub async fn balance_of<M: Middleware + 'static>(
     client: Arc<M>,
