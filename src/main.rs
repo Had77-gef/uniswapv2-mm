@@ -136,9 +136,9 @@ async fn main() -> Result<(), ()> {
                 //// log
                 println!("setup done, start trading");
 
-                let before_token_a_balance =
+                let before_selling_a_balance =
                     erc20::balance_of(provider.clone(), token_a_address, address).await;
-                let before_token_b_balance =
+                let before_selling_b_balance =
                     erc20::balance_of(provider.clone(), token_b_address, address).await;
 
                 println!(
@@ -166,25 +166,25 @@ async fn main() -> Result<(), ()> {
                 thread::sleep(Duration::from_millis(SWAP_DEADLINE as u64));
 
                 // recheck balance
-                let after_token_a_balance =
+                let after_selling_a_balance =
                     erc20::balance_of(provider.clone(), token_a_address, address).await;
-                let after_token_b_balance =
+                let after_selling_b_balance =
                     erc20::balance_of(provider.clone(), token_b_address, address).await;
 
                 //// log
                 println!(
-                    "\nsold {} ({}) and receive {} ({})\n",
+                    "\nsold {} ({}) and received {} ({})\n",
                     format_units(
-                        before_token_a_balance
-                            .checked_sub(after_token_a_balance)
+                        before_selling_a_balance
+                            .checked_sub(after_selling_a_balance)
                             .unwrap(),
                         token_a_decimal
                     )
                     .unwrap(),
                     token_a_symbol,
                     format_units(
-                        after_token_b_balance
-                            .checked_sub(before_token_b_balance)
+                        after_selling_b_balance
+                            .checked_sub(before_selling_b_balance)
                             .unwrap(),
                         token_b_decimal
                     )
@@ -193,15 +193,15 @@ async fn main() -> Result<(), ()> {
                 );
                 //// end of log
 
-                if after_token_b_balance <= before_token_b_balance {
+                if after_selling_b_balance <= before_selling_b_balance {
                     println!(
                         "\nnumber of token after purchase does not increase, something is wrong\n"
                     );
                     continue;
                 }
 
-                let token_b_gwei = after_token_b_balance
-                    .checked_sub(before_token_b_balance)
+                let token_b_gwei = after_selling_b_balance
+                    .checked_sub(before_selling_b_balance)
                     .unwrap();
 
                 // approve router contract to use token for trading
@@ -221,8 +221,10 @@ async fn main() -> Result<(), ()> {
                     config.trade.tswap_buy
                 );
                 println!(
-                    "sell {} ({} unit) to buy back {}",
-                    format_units(token_b_gwei, token_b_decimal).unwrap(), token_b_symbol, token_a_symbol
+                    "sell {} ({}) to buy back {}",
+                    format_units(token_b_gwei, token_b_decimal).unwrap(),
+                    token_b_symbol,
+                    token_a_symbol
                 );
                 //// end of log
 
@@ -238,40 +240,91 @@ async fn main() -> Result<(), ()> {
                 // wait for last swap transaction finalized
                 thread::sleep(Duration::from_millis(SWAP_DEADLINE as u64));
 
-                let after_token_a_balance =
+                let after_buying_a_balance =
                     erc20::balance_of(provider.clone(), token_a_address, address).await;
+                let after_buying_b_balance =
+                    erc20::balance_of(provider.clone(), token_b_address, address).await;
+
+                //// log
+                println!(
+                    "\nsold {} ({}) and received {} ({})\n",
+                    format_units(
+                        after_selling_b_balance
+                            .checked_sub(after_buying_b_balance)
+                            .unwrap(),
+                        token_b_decimal
+                    )
+                    .unwrap(),
+                    token_b_symbol,
+                    format_units(
+                        after_buying_a_balance
+                            .checked_sub(after_selling_a_balance)
+                            .unwrap(),
+                        token_a_decimal
+                    )
+                    .unwrap(),
+                    token_a_symbol
+                );
+                //// end of log
 
                 //// log
                 println!("------------ result ------------");
                 println!(
-                    "before trading: {} ({})",
-                    format_units(before_token_a_balance, token_a_decimal).unwrap(),
-                    token_a_symbol
+                    "{}: {}",
+                    token_a_symbol,
+                    if after_buying_a_balance >= before_selling_a_balance {
+                        format!(
+                            "{}{}",
+                            "+",
+                            format_units(
+                                after_buying_a_balance
+                                    .checked_sub(before_selling_a_balance)
+                                    .unwrap(),
+                                token_a_decimal
+                            )
+                            .unwrap()
+                        )
+                    } else {
+                        format!(
+                            "{}{}",
+                            "-",
+                            format_units(
+                                before_selling_a_balance
+                                    .checked_sub(after_buying_a_balance)
+                                    .unwrap(),
+                                token_a_decimal
+                            )
+                            .unwrap()
+                        )
+                    }
                 );
                 println!(
-                    "after trading: {} ({})",
-                    format_units(after_token_a_balance, token_a_decimal).unwrap(),
-                    token_a_symbol
-                );
-                println!(
-                    "profit: {}{}",
-                    if before_token_a_balance > after_token_a_balance {
-                        "-"
-                    } else {
-                        ""
-                    },
-                    if before_token_a_balance > after_token_a_balance {
-                        format_units(
-                            before_token_a_balance - after_token_a_balance,
-                            token_a_decimal,
+                    "{}: {}",
+                    token_b_symbol,
+                    if after_buying_b_balance >= before_selling_b_balance {
+                        format!(
+                            "{}{}",
+                            "+",
+                            format_units(
+                                after_buying_b_balance
+                                    .checked_sub(before_selling_b_balance)
+                                    .unwrap(),
+                                token_b_decimal
+                            )
+                            .unwrap()
                         )
-                        .unwrap()
                     } else {
-                        format_units(
-                            after_token_a_balance - before_token_a_balance,
-                            token_a_decimal,
+                        format!(
+                            "{}{}",
+                            "-",
+                            format_units(
+                                before_selling_b_balance
+                                    .checked_sub(after_buying_b_balance)
+                                    .unwrap(),
+                                token_b_decimal
+                            )
+                            .unwrap()
                         )
-                        .unwrap()
                     }
                 );
                 //// end of log
