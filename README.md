@@ -1,14 +1,14 @@
 # UNISWAPV2-MM
 bot doing tswap on uniswapv2 pool
 
-automatically sell token A in time X then sell received token B to buy back token A in time Y
+Gradually sell token A until a predetermined amount is sold out, then use the received token B to gradually buy back token A
 
-E.g. sell 10 ETH in 10 minutes then buy back in 30 minutes
+E.g. sell 10 ETH for 15 SOL within 10 minutes, then use the 15 SOL to buy back ETH within 30 minutes
 
-TODO: run swap in another thread and wait for transaction confirmation
+TODO: run swaps in multiple threads and wait for transaction confirmation
 ### Config
 file path `.env`
-- **private_key**: your wallet private key
+- **private_key**: your wallet's private key in hex format (e.g. 8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f)
 
 <br>
 
@@ -26,8 +26,8 @@ file path `config.json`
 - **trade**:
     - tswap_buy: number of steps of the buying stage,
     - tswap_sell: number of steps of the selling stage,
-    - tswap_step: step duration in second (e.g. 60 ~ 60 seconds),
-    - slippage: swap slippage with decimal 4 (e.g. 9500 means when selling input_token, accepting output token received ~ 95% of output token when simulating)
+    - tswap_step: step duration in second, must be greater than the average block time for the target chain (e.g. 60 ~ 60 seconds),
+    - slippage: swap slippage with decimal 4 (e.g. 9500 means that when selling the input token, only accept the transaction if the output token received is at least 95% of the output token predicted by the simulation.)
 - **network**:
     - rpc: node rpc
     - chain_id: chain id
