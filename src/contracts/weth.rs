@@ -3,10 +3,9 @@ use std::sync::Arc;
 use bindings_uniswapv2::weth::WETH;
 use ethers::{abi::Address, providers::Middleware, types::U256};
 
-use crate::{config::Config, BASIS_POINT};
+use crate::{config::Config, BASIS_POINT, DEFAULT_GAS_PRICE};
 
 const DEFAULT_DEPOSIT_CALL_GAS: u64 = 50000u64;
-const DEFAULT_GAS_PRICE: u64 = 50000000000u64;
 
 pub async fn balance_of<M: Middleware + 'static>(
     client: Arc<M>,

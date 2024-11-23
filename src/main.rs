@@ -23,7 +23,11 @@ pub mod tswap;
 
 const TRADING_ACTION: i32 = 1i32;
 const CONVERTING_ACTION: i32 = 2i32;
+
 const BASIS_POINT: u64 = 10000u64;
+
+const GAS_MULTIPLIER: u64 = 13000u64;
+const DEFAULT_GAS_PRICE: u64 = 50000000000u64; // 50 gwei
 
 #[tokio::main]
 async fn main() -> Result<(), ()> {
@@ -116,7 +120,7 @@ async fn main() -> Result<(), ()> {
 
                 print!("Amount Sell ({}): ", token_a_symbol);
                 let eth: String = try_read!("{}\n").unwrap_or("0".to_string());
-                let gwei: U256 = parse_units(eth, token_a_decimal).unwrap().into();
+                let gwei: U256 = parse_units(eth.clone(), token_a_decimal).unwrap().into();
 
                 // approve router contract to use token for trading
                 check_allowance(
@@ -142,8 +146,8 @@ async fn main() -> Result<(), ()> {
                     config.trade.tswap_sell
                 );
                 println!(
-                    "sell {} ({} unit) to buy {}",
-                    gwei, token_a_symbol, token_b_symbol
+                    "sell {} ({}) to buy {}",
+                    eth, token_a_symbol, token_b_symbol
                 );
                 //// end of log
 
@@ -218,7 +222,7 @@ async fn main() -> Result<(), ()> {
                 );
                 println!(
                     "sell {} ({} unit) to buy back {}",
-                    token_b_gwei, token_b_symbol, token_a_symbol
+                    format_units(token_b_gwei, token_b_decimal).unwrap(), token_b_symbol, token_a_symbol
                 );
                 //// end of log
 
@@ -242,12 +246,12 @@ async fn main() -> Result<(), ()> {
                 println!(
                     "before trading: {} ({})",
                     format_units(before_token_a_balance, token_a_decimal).unwrap(),
-                    config.pool.token_a_symbol
+                    token_a_symbol
                 );
                 println!(
                     "after trading: {} ({})",
                     format_units(after_token_a_balance, token_a_decimal).unwrap(),
-                    config.pool.token_a_symbol
+                    token_a_symbol
                 );
                 println!(
                     "profit: {}{}",

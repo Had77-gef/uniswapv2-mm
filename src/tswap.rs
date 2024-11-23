@@ -1,18 +1,13 @@
-use crate::{params::config::Config, BASIS_POINT};
+use crate::{params::config::Config, BASIS_POINT, DEFAULT_GAS_PRICE, GAS_MULTIPLIER};
 use bindings_uniswapv2::{ierc20::IERC20, uniswapv2_router02::UniswapV2Router02};
 use chrono::Utc;
 use ethers::{abi::Address, contract::ContractError, providers::Middleware, types::U256};
-use std::{
-    sync::Arc,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::sync::Arc;
 
-const GAS_MULTIPLIER: u64 = 13000u64;
-const DEFAULT_GAS_PRICE: u64 = 50000000000u64; // 50 gwei
 const DEFAULT_APPROVE_CALL_GAS: u64 = 40000u64;
 const DEFAULT_SWAP_CALL_GAS: u64 = 200000u64;
 
-pub const SWAP_DEADLINE: u128 = 120000u128; // 120 seconds
+pub const SWAP_DEADLINE: i64 = 120000i64; // 120 seconds
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -186,10 +181,9 @@ impl<M: Middleware + 'static> Tswap<M> {
     }
 }
 
-fn get_valid_timestamp(future_millis: u128) -> u128 {
-    let start = SystemTime::now();
-    let since_epoch = start.duration_since(UNIX_EPOCH).unwrap();
-    let time_millis = since_epoch.as_millis().checked_add(future_millis).unwrap();
+fn get_valid_timestamp(future_millis: i64) -> i64 {
+    let since_epoch = Utc::now();
+    let time_millis = since_epoch.timestamp_millis().checked_add(future_millis).unwrap();
 
     time_millis
 }
